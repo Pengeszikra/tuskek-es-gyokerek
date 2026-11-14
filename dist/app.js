@@ -51,3 +51,16 @@ if (feedList) {
    feedList.textContent = language === 'hu' ? 'A cikkek most nem tölthetők be. Nyisd meg az RSS feedet alább.' : 'Posts are unavailable right now. Open the RSS feed below.';
   });
 }
+
+const terminalLaunch = document.getElementById('terminal-launch');
+terminalLaunch?.addEventListener('click', () => {
+ const host = document.getElementById('workshop-terminal-frame');
+ const iframe = document.createElement('iframe');
+ iframe.src = 'https://terminal-is-your-friend.vercel.app/';
+ iframe.title = 'Terminal Is Your Friend — TS/JS/TSX Sandbox Terminal with AI mentor';
+ iframe.allow = 'clipboard-read; clipboard-write';
+ host.replaceChildren(iframe);
+ host.hidden = false;
+ terminalLaunch.setAttribute('aria-expanded', 'true');
+ terminalLaunch.hidden = true;
+});
