@@ -65,3 +65,5 @@
 .loader-viewer{border:0}
 .loader-stage #loader-svg rect{stroke:none}
 @media(max-width:720px){.terminal-embed{margin-top:30px}.terminal-embed iframe{height:75vh;min-height:560px}}
+
+.terminal .product-copy{position:static}
