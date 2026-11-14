@@ -69,15 +69,18 @@
 .terminal .product-copy{position:static}
 
 /* Workshop terminal: a vertical panel on desktop, full width below on mobile. */
-.workshop-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:6%;align-items:start}
+.workshop{padding:0;background:transparent}
+.workshop-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;align-items:stretch}
+.workshop-info{min-width:0;min-height:640px;padding:90px 7vw;background:#df622c}
 .workshop-info>p:not(.eyebrow){max-width:760px;margin-top:30px;font-size:20px}
 .workshop-info h2{font-size:clamp(76px,8vw,130px)}
 .workshop-terminal{min-width:0;background:#0b1d20;color:#e8efda;min-height:640px}
-.terminal-launch{width:100%;height:640px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:26px;text-align:left;border:0;background:#0b1d20;color:#e8efda;padding:clamp(24px,4vw,58px);font:700 clamp(27px,3vw,45px)/1.13 'Barlow Condensed',sans-serif}
+.terminal-launch{width:100%;height:100%;min-height:640px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:26px;text-align:left;border:0;background:#0b1d20;color:#e8efda;padding:clamp(24px,4vw,58px);font:700 clamp(27px,3vw,45px)/1.13 'Barlow Condensed',sans-serif}
 .terminal-launch:hover{background:#102e30}
 .terminal-glyph{font:700 54px monospace;color:#68d6b0}
 .launch-arrow{font:30px monospace;color:#68d6b0}
 .workshop-terminal-frame iframe{display:block;width:100%;height:640px;border:0;background:#0b1d20}
-@media(max-width:900px){.workshop-grid{display:block}.workshop-info>p:not(.eyebrow){font-size:17px}.workshop-terminal{margin-top:38px;min-height:0;width:100%}.terminal-launch{height:230px;padding:28px;font-size:30px;gap:9px}.terminal-glyph{font-size:32px}.launch-arrow{font-size:22px}.workshop-terminal-frame iframe{height:70vh;min-height:560px}}
+@media(max-width:900px){.workshop-grid{grid-template-columns:1fr}.workshop-info{min-height:0;padding:52px 6vw}.workshop-info>p:not(.eyebrow){font-size:17px}.workshop-terminal{min-height:0;width:100%}.terminal-launch{height:auto;min-height:340px;padding:6vw;font-size:30px;gap:9px}.terminal-glyph{font-size:32px}.launch-arrow{font-size:22px}.workshop-terminal-frame iframe{height:70vh;min-height:560px}}
+@media(max-width:720px){.hero .logo{width:90vw;max-width:none}}
 
 .terminal-launch[hidden],.workshop-terminal-frame[hidden]{display:none}
