@@ -55,3 +55,13 @@
 .terminal-screen .terminal-result{color:#69dbb1;margin:22px 0 32px!important;font-size:34px}
 .terminal-screen .terminal-hint{color:#a7bca8;font-size:12px;white-space:normal;margin:0!important}
 @media(max-width:720px){.terminal{display:block}.terminal h2{font-size:64px}.terminal-art{margin-top:34px;box-shadow:8px 8px 0 #102e3023;font-size:12px}.terminal-screen{padding:24px 15px 30px}.terminal-top strong{font-size:9px}}
+
+/* Embedded learning terminal and borderless SVG scene */
+.terminal{display:block}
+.terminal .product-copy{max-width:850px}
+.terminal-embed{margin-top:48px;background:#0b1d20}
+.terminal-embed iframe{display:block;width:100%;height:min(78vh,760px);min-height:560px;border:0;background:#0b1d20}
+.terminal-embed p{padding:12px 16px;color:#d9e8d7;font-size:12px!important;margin:0!important}
+.loader-viewer{border:0}
+.loader-stage #loader-svg rect{stroke:none}
+@media(max-width:720px){.terminal-embed{margin-top:30px}.terminal-embed iframe{height:75vh;min-height:560px}}
