@@ -12,6 +12,14 @@ Both pages use the site's EN/HU language switch. Links between the main MCP sect
 
 The guide distinguishes verified embedded model rendering from the experimental shared-session protocol documented upstream in [spi3der/WORKSHOP.md](https://github.com/Pengeszikra/spi3der/blob/main/WORKSHOP.md).
 
+## Inline spi3der demo
+
+The main page's **AI at the workbench / Give your agent real tools** section embeds the **actual** spi3der editor from `https://spi3der.cloud.run/`, starting with the editable 30-object mechanical spider scene in [dist/assets/spi3der-spider.scene.json](dist/assets/spi3der-spider.scene.json).
+
+[dist/spi3der-demo.js](dist/spi3der-demo.js) fetches that saved 3Draft scene, compresses it with the editor's supported `deflate-raw` format, and sets the native iframe's `#scene=` fragment. Geometry and editing still run in the spi3der browser app; this site does **not** implement a parallel 3D editor or require an MCP connection just to orbit the public demo. If the browser cannot prepare the fragment, the page offers a link to the native app and the scene download. Browsers must support `CompressionStream('deflate-raw')`.
+
+The separate [spi3der guide](dist/spi3der.html) uses [transparent spider artwork](dist/assets/spi3der-spider-transparent.svg), and both pages have a dedicated spi3der navigation entry. The SVG keys dark pixels to transparent while retaining the original embedded spider artwork; it is distinct from the 3D model.
+
 ## Run locally
 
 No build step or package installation is needed. Serve `dist/` over HTTP:
