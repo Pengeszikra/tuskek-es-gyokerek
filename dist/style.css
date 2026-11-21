@@ -84,3 +84,40 @@
 @media(max-width:720px){.hero .logo{width:90vw;max-width:none}}
 
 .terminal-launch[hidden],.workshop-terminal-frame[hidden]{display:none}
+
+
+/* ChatGPT spi3der: original native editor embedded with a saved 3Draft scene. */
+.mcp-connection h3{margin:18px 0 16px;font-size:clamp(28px,2.7vw,38px)}
+.mcp-connection p{font-size:16px!important;margin:0 0 22px!important}
+.mcp-connection>a{font-weight:700}
+.mcp-demo{margin-top:54px;background:#0c2225;color:var(--paper)}
+.mcp-demo-head{padding:38px 42px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:end}
+.mcp-demo-head .eyebrow{color:#e48a63;margin-bottom:18px}
+.mcp-demo-head h3{font-size:clamp(34px,4.4vw,60px);line-height:1.04;margin-bottom:18px}
+.mcp-demo-head p:not(.eyebrow){max-width:740px;margin:0;color:#f3e8cfc4}
+.mcp-demo-actions{display:flex;flex-direction:column;align-items:flex-start;gap:15px;white-space:nowrap;font-size:14px;font-weight:700}
+.mcp-demo-actions a{color:var(--paper);border-bottom:1px solid #f3e8cfa0}
+.mcp-demo-stage{min-height:600px;background:#090f12;position:relative}
+.mcp-demo-stage iframe{display:block;width:100%;height:min(69vw,730px);min-height:600px;border:0;background:#090f12}
+.mcp-demo-fallback{position:absolute;inset:0;display:grid;place-items:center;padding:35px;text-align:center}
+.mcp-demo-fallback[hidden]{display:none}
+.mcp-demo-status{margin:0!important;padding:12px 42px 18px;font:12px/1.6 monospace;color:#f3e8cfb6}
+@media(max-width:900px){
+  .mcp-demo-head{grid-template-columns:1fr;gap:22px}
+  .mcp-demo-actions{flex-direction:row;flex-wrap:wrap;white-space:normal;gap:18px}
+}
+@media(max-width:720px){
+  html{scroll-padding-top:135px}
+  header{flex-wrap:wrap;row-gap:10px}
+  header nav{order:3;width:100%;margin-left:0;justify-content:space-between;gap:9px}
+  header nav a:last-child{display:inline}
+  header .languages{margin-left:auto}
+  .mcp-connection p{font-size:15px!important}
+  .mcp-demo{margin-top:34px}
+  .mcp-demo-head{padding:25px 20px}
+  .mcp-demo-head h3{font-size:37px}
+  .mcp-demo-head p:not(.eyebrow){font-size:15px}
+  .mcp-demo-stage{min-height:440px}
+  .mcp-demo-stage iframe{height:68vh;min-height:440px}
+  .mcp-demo-status{padding:12px 20px 18px;font-size:11px}
+}
