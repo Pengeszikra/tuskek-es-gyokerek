@@ -15,8 +15,8 @@
 .spi-page{overflow-x:hidden}.spi-wrap{max-width:1400px;margin:0 auto}
 .spi-hero{padding:95px 7% 110px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:8%;align-items:center;min-height:75vh}
 .spi-hero h1{font-size:clamp(82px,10vw,170px);margin:0 0 36px}.spi-hero .lead{max-width:660px;font-size:clamp(18px,1.6vw,23px);margin:0 0 26px}
-.spi-hero .links{margin-top:36px}.spi-art{background:#0c2225;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6%;box-shadow:18px 18px 0 #d9512026}
-.spi-art img{display:block;width:100%;height:82%;object-fit:contain}.spi-art small{font:11px/1.5 monospace;letter-spacing:1.4px;color:#f3e8cfa6;text-align:center}
+.spi-hero .links{margin-top:36px}.spi-art{background:transparent;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;box-shadow:none}
+.spi-art img{display:block;width:100%;height:82%;object-fit:contain}.spi-art small{font:11px/1.5 monospace;letter-spacing:1.4px;color:#102e30a6;text-align:center}
 .spi-kicker{font:700 12px monospace;letter-spacing:1px;color:#d95120;margin:0 0 12px}.spi-links{display:flex;gap:26px;flex-wrap:wrap;align-items:center}
 .spi-links a:not(.button){font-weight:700;border-bottom:1px solid;padding-bottom:3px}
 .spi-section{padding:90px 7%}.spi-section .section-head{max-width:860px;margin-bottom:54px}.spi-section h2{font-size:clamp(62px,7vw,112px);line-height:1.01;margin:0 0 25px}
@@ -40,7 +40,7 @@
 .spi-mini{font:12px monospace;opacity:.74;margin-top:14px}
 .spi-page footer{background:#f3e8cf}.spi-page .page-link{border-bottom:1px solid currentColor}
 @media(max-width:1000px){.spi-hero{grid-template-columns:1fr 320px;gap:5%}.spi-storyline{grid-template-columns:repeat(2,minmax(0,1fr))}.spi-flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:720px){.spi-hero{display:block;padding:55px 6% 70px;min-height:0}.spi-hero h1{font-size:80px}.spi-art{margin-top:45px;aspect-ratio:1.2;box-shadow:9px 9px 0 #d9512026}.spi-art img{height:80%}
+@media(max-width:720px){.spi-hero{display:block;padding:55px 6% 70px;min-height:0}.spi-hero h1{font-size:80px}.spi-art{margin-top:45px;aspect-ratio:1.2;box-shadow:none}.spi-art img{height:80%}
 .spi-section{padding:58px 6%}.spi-section h2{font-size:64px}.spi-section .section-head{margin-bottom:30px}
 .spi-storyline,.spi-flow,.spi-example,.spi-limits-grid,.spi-future-grid{display:block}.story-step{min-height:0;border-bottom:1px solid #f3e8cf36}.spi-flow article{margin-bottom:14px}
 .spi-example{padding:25px}.spi-example p{margin-top:26px}.guide-step{grid-template-columns:38px 1fr;gap:12px}
@@ -52,7 +52,7 @@
 <div id="progress"></div>
 <header>
 <a class="brand" href="index.html#home" data-lang-link="index.html#home">Tüskék és Gyökerek<span>INDEPENDENT SOFTWARE WORKSHOP</span></a>
-<nav><a href="index.html#products" data-lang-link="index.html#products" data-en="Tools" data-hu="Eszközök">Tools</a><a href="index.html#mcp" data-lang-link="index.html#mcp">MCP</a><a href="#story" data-en="Origins" data-hu="Eredet">Origins</a><a href="#usage" data-en="Guide" data-hu="Útmutató">Guide</a></nav>
+<nav><a href="index.html#products" data-lang-link="index.html#products" data-en="Tools" data-hu="Eszközök">Tools</a><a href="index.html#mcp" data-lang-link="index.html#mcp">MCP</a><a href="spi3der.html" data-lang-link="spi3der.html" aria-current="page">spi3der</a><a href="#story" data-en="Origins" data-hu="Eredet">Origins</a><a href="#usage" data-en="Guide" data-hu="Útmutató">Guide</a></nav>
 <div class="languages" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><span>/</span><button data-lang="hu" aria-pressed="false">HU</button></div>
 </header>
 <main>
@@ -62,9 +62,9 @@
 <h1 data-en="Meet <em>spi3der.</em>" data-hu="Ismerd meg a <em>spi3dert.</em>">Meet <em>spi3der.</em></h1>
 <p class="lead" data-en="A real 3D workshop <strong>inside a ChatGPT conversation.</strong> Ask an AI agent to build, inspect and reshape geometry — then explore the result using the original spi3der editor, not a substitute interface." data-hu="Valódi 3D műhely <strong>a ChatGPT-beszélgetésben.</strong> Kérd meg az AI-agentet, hogy hozzon létre, vizsgáljon meg vagy alakítson át geometriát — majd járd be az eredményt a spi3der eredeti szerkesztőjében, nem egy helyettesítő felületen.">A real 3D workshop <strong>inside a ChatGPT conversation.</strong> Ask an AI agent to build, inspect and reshape geometry — then explore the result using the original spi3der editor, not a substitute interface.</p>
 <p class="spi-kicker">MCP APP · BROWSER-NATIVE · OPEN SOURCE</p>
-<div class="spi-links"><a class="button orange" href="#usage" data-en="How to use it ↓" data-hu="Használati útmutató ↓">How to use it ↓</a><a href="https://github.com/Pengeszikra/spi3der">GitHub ↗</a><a href="index.html#mcp" data-lang-link="index.html#mcp" data-en="Back to the workbench ↗" data-hu="Vissza a munkaasztalhoz ↗">Back to the workbench ↗</a></div>
+<div class="spi-links"><a class="button orange" href="#usage" data-en="How to use it ↓" data-hu="Használati útmutató ↓">How to use it ↓</a><a href="https://github.com/Pengeszikra/spi3der">GitHub ↗</a><a href="index.html#mcp" data-lang-link="index.html#mcp" data-en="Try spi3der on this site ↗" data-hu="Próbáld ki a spi3dert itt ↗">Try spi3der on this site ↗</a></div>
 </div>
-<div class="spi-art"><img src="https://raw.githubusercontent.com/Pengeszikra/spi3der/main/media/spi3der-brand.svg" alt="spi3der mechanical spider logo" loading="lazy"><small>spi3der · 3Draft engine · MCP App workshop</small></div>
+<div class="spi-art"><img src="assets/spi3der-spider-transparent.svg" alt="Transparent spi3der mechanical spider logo" loading="lazy"><small>spi3der · 3Draft engine · MCP App workshop</small></div>
 </section>
 <section class="spi-section spi-story" id="story"><div class="spi-wrap">
 <div class="section-head">
