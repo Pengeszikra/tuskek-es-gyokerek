@@ -5,6 +5,7 @@ function setLanguage(lang) {
  document.documentElement.lang = lang;
  document.querySelectorAll('[data-en]').forEach(el => { el.innerHTML = el.dataset[lang]; });
  buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === lang)));
+ document.querySelectorAll('[data-lang-link]').forEach(link => { const dest = new URL(link.dataset.langLink, location.href); dest.searchParams.set('lang', lang); link.href = dest.pathname + dest.search + dest.hash; });
  const url = new URL(location.href);
  url.searchParams.set('lang', lang);
  history.replaceState(null, '', url);
