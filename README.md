@@ -4,6 +4,14 @@ English-first, Hungarian-enabled company page for [3Draft](https://github.com/Pe
 
 [Open the site](https://tuskek-gyokerek.petervivo.chatgpt.site/) (currently owner-only).
 
+## ChatGPT spi3der workshop
+
+The main page's **AI at the workbench / Give your agent real tools** section now introduces the ChatGPT-embedded spi3der MCP App. The full bilingual story, architecture, usage instructions, limitations, and roadmap live at [dist/spi3der.html](dist/spi3der.html) and at `/spi3der.html` on the deployed site.
+
+Both pages use the site's EN/HU language switch. Links between the main MCP section and the workshop guide preserve `?lang=en` or `?lang=hu`.
+
+The guide distinguishes verified embedded model rendering from the experimental shared-session protocol documented upstream in [spi3der/WORKSHOP.md](https://github.com/Pengeszikra/spi3der/blob/main/WORKSHOP.md).
+
 ## Run locally
 
 No build step or package installation is needed. Serve `dist/` over HTTP:
