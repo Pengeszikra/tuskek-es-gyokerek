@@ -430,7 +430,152 @@ const SCENES = [
   { d: 6.2, draw: sceneSpider }, { d: 5.8, draw: sceneMcp }, { d: 7, draw: sceneFive },
   { d: 6.6, draw: sceneScale }, { d: 6, draw: sceneSpi3der }, { d: 4.6, draw: sceneOutro }
 ];
-const TOTAL = SCENES.reduce((a, s) => a + s.d, 0);
+let TOTAL = SCENES.reduce((a, s) => a + s.d, 0);
+
+// 6b · Five Percent, real data (replaces the fallback scene above once loaded): a flight from behind the Sun to the Andromeda
+// Galaxy through Spider Paint's deep-sky catalogue (1 unit = 1 light year).
+// Every star sits at its catalogue position, so near stars sweep past with true
+// parallax while far ones barely move. Galaxy centres are real; the disc of
+// Andromeda is procedural, as it is in Spider Paint.
+function makeDeepskyScene(DS) {
+  const M31 = DS.galaxies.find(g => g[5].startsWith('Andromeda'));
+  const D_M31 = Math.hypot(M31[0], M31[1], M31[2]);
+  const fwd = norm([M31[0], M31[1], M31[2]]);
+  const right = norm(cross(fwd, [0, 1, 0]));
+  const up = cross(right, fwd);
+  const hexRGB = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const stars = DS.stars.map(s => ({ p: [s[0], s[1], s[2]], glow: s[3], rgb: hexRGB(s[4]), name: s[5] }));
+  stars.push({ p: [0, 0, 0], glow: 0.2, rgb: [255, 205, 150], name: 'Sun' });
+  const cloud = DS.cloud.map(c => ({ p: [c[0], c[1], c[2]], rgb: [c[3] >> 16 & 255, c[3] >> 8 & 255, c[3] & 255], l: c[4] / 255 }));
+  const gals = DS.galaxies.map(g => ({ p: [g[0], g[1], g[2]], r: g[3], rgb: hexRGB(g[4]), name: g[5] }));
+  const M31g = gals.find(g => g.name.startsWith('Andromeda'));
+  const resolveOf = rad => clamp((rad - 25) / 120);
+  // Andromeda's disc: centre and size from the catalogue, arms procedural; ~77° inclined.
+  const disc = [];
+  { const rnd = rng(31), R = M31[3] * 0.9;
+    const n0 = norm(add(mul(fwd, -0.22), add(mul(up, 0.95), mul(right, 0.2)))); // disc normal, almost edge-on
+    const a1 = norm(cross(n0, right)), a2 = cross(n0, a1);
+    const gauss = () => (rnd() + rnd() + rnd() - 1.5) / 1.5;
+    for (let i = 0; i < 3600; i++) {
+      let q, core;
+      if (i < 900) { // bulge
+        const rr = Math.abs(gauss()) * R * 0.16, th = rnd() * Math.PI * 2, h = gauss() * R * 0.06;
+        q = add(add(mul(a1, Math.cos(th) * rr), mul(a2, Math.sin(th) * rr)), mul(n0, h)); core = 1;
+      } else {
+        const arm = i % 2, u = rnd(), rr = R * (0.1 + 0.9 * Math.pow(u, 0.9));
+        const th = arm * Math.PI + Math.log(rr / (R * 0.1)) * 2.4 + gauss() * 0.45;
+        const h = gauss() * R * 0.015;
+        q = add(add(mul(a1, Math.cos(th) * rr), mul(a2, Math.sin(th) * rr)), mul(n0, h)); core = 1 - rr / R;
+      }
+      disc.push({ p: add([M31[0], M31[1], M31[2]], q), core });
+    }
+  }
+  const F = 700, CX = 400, CY = 330;
+  function proj(p, cam) {
+    const q = sub(p, cam);
+    const z = dot(q, fwd);
+    if (z <= 0) return null;
+    return { x: CX + F * dot(q, right) / z, y: CY - F * dot(q, up) / z, z };
+  }
+  const fmt = d => d < 0.05 ? `${(d * 63241).toFixed(d * 63241 < 10 ? 1 : 0)} AU` : d < 1000 ? `${d.toFixed(d < 10 ? 1 : 0)} light years` : d < 1e6 ? `${(d / 1000).toFixed(d < 1e4 ? 1 : 0)} thousand ly` : `${(d / 1e6).toFixed(2)} million ly`;
+
+  return function sceneFiveReal(ctx, t, d) {
+    ctx.fillStyle = '#020608'; ctx.fillRect(0, 0, W, H);
+    // distance along the line Sun → Andromeda, exponential: every second
+    // multiplies it, so speed changes by orders of magnitude, never a jump
+    const e = ease(span(t, 0.25, d - 0.5));
+    const D = Math.pow(10, lerp(-4.4, Math.log10(D_M31 * 0.93), e)) - 1.5e-4;
+    const cam = mul(fwd, D);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    // Milky Way glow (Spider Paint's cloud)
+    for (const c of cloud) {
+      const s = proj(c.p, cam); if (!s || s.x < -20 || s.x > W + 20 || s.y < -20 || s.y > H + 20) continue;
+      const rad = clamp(450 * F / s.z, 0.8, 7);
+      const a = clamp(c.l * 0.0012 * (8 / rad), 0, 0.09);
+      if (a < 0.003) continue;
+      ctx.fillStyle = `rgba(${c.rgb[0]},${c.rgb[1]},${c.rgb[2]},${a})`;
+      ctx.fillRect(s.x - rad / 2, s.y - rad / 2, rad, rad);
+    }
+    // galaxies
+    for (const g of gals) {
+      const s = proj(g.p, cam); if (!s) continue;
+      const rad = Math.max(1.4, g.r * F / s.z); if (s.x < -rad || s.x > W + rad || s.y < -rad || s.y > H + rad) continue;
+      const rr = Math.min(rad, 400);
+      const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, rr);
+      const a = g === M31g ? clamp(0.5 - resolveOf(rad) * 0.3, 0.2, 0.5) : clamp(0.45 / Math.sqrt(Math.max(1, rad / 6)), 0.08, 0.45);
+      grd.addColorStop(0, `rgba(${g.rgb[0]},${g.rgb[1]},${g.rgb[2]},${a})`); grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grd; ctx.fillRect(s.x - rr, s.y - rr, rr * 2, rr * 2);
+    }
+    // Andromeda's stars once it is near enough to resolve
+    const dm = Math.hypot(...sub([M31[0], M31[1], M31[2]], cam));
+    const resolve = resolveOf(M31[3] * F / dm);
+    if (resolve > 0) for (const q of disc) {
+      const s = proj(q.p, cam); if (!s) continue;
+      ctx.fillStyle = q.core > 0.95 ? `rgba(255,226,184,${0.35 * resolve})` : `rgba(190,210,255,${(0.22 + q.core * 0.35) * resolve})`;
+      ctx.fillRect(s.x, s.y, 1.8, 1.8);
+    }
+    // stars: brightness falls with true distance from the camera
+    const labels = [];
+    for (const st of stars) {
+      const s = proj(st.p, cam); if (!s || s.x < -40 || s.x > W + 40 || s.y < -40 || s.y > H + 40) continue;
+      const b = st.glow / s.z, lb = Math.log10(b);
+      const a = clamp((lb + 4.6) / 2.4, 0, 1);
+      if (a < 0.03) continue;
+      const rad = st.name === 'Sun' ? clamp(0.9 + 9 * Math.sqrt(b), 1, 90) : 0.9 + clamp((lb + 2.6) * 2.2, 0, 9);
+      const [r, g, bl] = st.rgb;
+      if (rad > 2.2) {
+        const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, rad * 2.2);
+        grd.addColorStop(0, `rgba(${r},${g},${bl},${a})`); grd.addColorStop(0.25, `rgba(${r},${g},${bl},${a * 0.45})`); grd.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(s.x, s.y, rad * 2.2, 0, 7); ctx.fill();
+      }
+      ctx.fillStyle = `rgba(${Math.min(255, r + 40)},${Math.min(255, g + 40)},${Math.min(255, bl + 40)},${a})`;
+      const c = Math.max(1.1, Math.min(rad, 3.2) * 0.7);
+      ctx.fillRect(s.x - c / 2, s.y - c / 2, c, c);
+      if (st.name && s.z < Math.max(30, D * 0.9) && s.x > 60 && s.x < W - 60 && s.y > 130 && s.y < 540) labels.push({ s, st, b });
+    }
+    ctx.restore();
+    // labels: the brightest few named stars in view
+    labels.sort((a, b) => b.b - a.b);
+    const shown = [];
+    for (const L of labels) { if (shown.length < 3 && shown.every(o => Math.hypot(o.s.x - L.s.x, o.s.y - L.s.y) > 70)) shown.push(L); }
+    for (const { s, st } of shown) {
+      text(ctx, st.name, s.x + 10, s.y - 8, font(MONO, 13), C.mist, 'left', 0.85);
+      text(ctx, fmt(Math.hypot(...st.p)) + ' from the Sun', s.x + 10, s.y + 8, font(MONO, 10), C.mist, 'left', 0.5);
+    }
+    const ap = proj([M31[0], M31[1], M31[2]], cam);
+    const ma = ease(span(t, d - 2.4, d - 1.6));
+    if (ap && ma) {
+      text(ctx, 'Andromeda Galaxy (M31)', ap.x, ap.y - 70, font(MONO, 15), C.paper, 'center', ma);
+      text(ctx, '2.54 million light years from the Sun', ap.x, ap.y - 50, font(MONO, 11), C.mist, 'center', ma);
+    }
+    // HUD
+    const hud = ease(span(t, 0.4, 1)) * (1 - ease(span(t, d - 0.6, d - 0.1)));
+    const level = 1 + Math.min(8, Math.floor(e * 9));
+    text(ctx, 'SNP DRIVE · LEVEL ' + level, 70, 80, font(MONO, 15), C.gold, 'left', hud, 3);
+    ctx.save(); ctx.globalAlpha = hud;
+    for (let i = 0; i < 9; i++) { ctx.fillStyle = i < level ? C.gold : 'rgba(243,232,207,.18)'; ctx.fillRect(70 + i * 22, 94, 16, 8); }
+    ctx.restore();
+    text(ctx, 'FROM THE SUN', 730, 80, font(MONO, 12), C.mist, 'right', hud, 2);
+    text(ctx, fmt(Math.max(0, D)), 730, 104, font(MONO, 16), C.paper, 'right', hud);
+    text(ctx, 'REAL CATALOGUE POSITIONS · SPIDER PAINT DEEP SKY', 400, 560, font(MONO, 11), C.mist, 'center', hud * 0.7, 2);
+    // the story lines
+    const a1 = ease(span(t, 0.5, 1.2)) * (1 - ease(span(t, 3.2, 3.8)));
+    text(ctx, 'Only 5% of the universe', 400, 300, font(HEAD, 60), C.paper, 'center', a1, -1);
+    text(ctx, 'is known matter.', 400, 358, font(HEAD, 60), C.paper, 'center', a1, -1);
+    caption(ctx, Math.max(0, t - 3.4), d - 3.4, 'VR · META VR START COMPETITION 2026', 'Five Percent', 'Take a starship. Explore the 95%.', C.paper, C.gold, 650);
+  };
+}
+
+// Load the catalogue once; when it arrives the real flight takes scene 6's place.
+let deepskyReady = null;
+function loadDeepsky() {
+  deepskyReady ??= fetch('assets/deepsky-lite.json').then(r => r.json()).then(DS => {
+    SCENES[5] = { d: 8, draw: makeDeepskyScene(DS) };
+    TOTAL = SCENES.reduce((a, s) => a + s.d, 0);
+  }).catch(() => {});
+  return deepskyReady;
+}
+
 
 /* ---------- player ---------- */
 const root = document.getElementById('hero-visual');
@@ -474,7 +619,8 @@ if (root) {
     size(); frame();
     requestAnimationFrame(() => intro.classList.add('on'));
     // wait briefly for the web fonts, but never longer than a second
-    Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise(r => setTimeout(r, 1000))]).then(play);
+    const fonts = Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise(r => setTimeout(r, 1000))]);
+    Promise.all([fonts, Promise.race([loadDeepsky(), new Promise(r => setTimeout(r, 2500))])]).then(play);
   }
   function finish() {
     playing = false; cancelAnimationFrame(raf);
@@ -489,6 +635,7 @@ if (root) {
   addEventListener('resize', () => { if (!intro.hidden) { size(); frame(); } });
   document.addEventListener('visibilitychange', () => { if (document.hidden && playing) pause(); });
 
+  setTimeout(loadDeepsky, 1500);
   // Arrive proactively: a few seconds after the hero is in view, unless the
   // visitor prefers reduced motion or has already seen it in this session.
   let seen = false; try { seen = sessionStorage.getItem('tg-intro-seen') === '1'; } catch {}

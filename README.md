@@ -18,7 +18,7 @@ All pages share `style.css`, `app.js` (EN/HU switch, language-preserving links, 
 
 ## Story intro
 
-`dist/intro.js` is a silent, English-only canvas animation (about 52 seconds, no audio, no narration). About four seconds after the hero comes into view it fades in over the logo, tells the story — Thorns & Roots, HEXAW, 3Draft, Spider Paint, MCP, Five Percent, atoms to galaxies, spi3der — and fades back to the logo. It does not start by itself when the visitor prefers reduced motion or has already seen it in this browser session; a "Watch the story" button replays it. Add `?intro` to the URL to start it right away.
+`dist/intro.js` is a silent, English-only canvas animation (about 53 seconds, no audio, no narration). About four seconds after the hero comes into view it fades in over the logo, tells the story — Thorns & Roots, HEXAW, 3Draft, Spider Paint, MCP, Five Percent, atoms to galaxies, spi3der — and fades back to the logo. The Five Percent scene is a flight from the Sun to the Andromeda Galaxy through real catalogue positions, loaded from `dist/assets/deepsky-lite.json` (extracted from Spider Paint's `deepsky.scene.json`; 1 unit = 1 light year). It does not start by itself when the visitor prefers reduced motion or has already seen it in this browser session; a "Watch the story" button replays it. Add `?intro` to the URL to start it right away.
 
 ## Inline spi3der demo
 
