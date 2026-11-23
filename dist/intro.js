@@ -34,14 +34,14 @@ function box(c, s, color) {
   for (let i = 0; i < 8; i++) v.push([c[0] + (i & 1 ? 1 : -1) * s[0] / 2, c[1] + (i & 2 ? 1 : -1) * s[1] / 2, c[2] + (i & 4 ? 1 : -1) * s[2] / 2]);
   return { v, color };
 }
-function beam(a, b, w, color) {
+function beam(a, b, w, color, w2 = w) {
   const d = norm(sub(b, a));
   let u = cross(d, [0, 1, 0]); if (Math.hypot(...u) < 1e-3) u = cross(d, [1, 0, 0]);
-  u = mul(norm(u), w / 2); const n = mul(norm(cross(d, u)), w / 2);
+  u = norm(u); const n = norm(cross(d, u));
   const v = [];
   for (let i = 0; i < 8; i++) {
-    const base = i & 1 ? b : a;
-    v.push(add(add(base, mul(u, i & 2 ? 1 : -1)), mul(n, i & 4 ? 1 : -1)));
+    const base = i & 1 ? b : a, r = (i & 1 ? w2 : w) / 2;
+    v.push(add(add(base, mul(u, (i & 2 ? 1 : -1) * r)), mul(n, (i & 4 ? 1 : -1) * r)));
   }
   return { v, color };
 }
@@ -115,42 +115,59 @@ function keycap(ctx, label, x, y, a, hot) {
 
 /* ---------- the scenes ---------- */
 
-// 1 · Thorns & roots grow out of one line.
-const ROOTS = (() => {
-  const r = rng(7), segs = [];
-  function grow(x, y, ang, len, depth, dir, t0) {
-    if (depth > 6 || len < 6) return;
-    const x2 = x + Math.cos(ang) * len, y2 = y + Math.sin(ang) * len;
-    segs.push({ x, y, x2, y2, depth, dir, t0, w: Math.max(1, 7 - depth) });
-    const n = depth < 2 ? 3 : 2;
-    for (let i = 0; i < n; i++) grow(x2, y2, ang + (r() - 0.5) * 1.1, len * (0.62 + r() * 0.18), depth + 1, dir, t0 + 0.35);
+// 1 · Thorns & roots: a slab of ground, roots growing down, thorns up — in 3D.
+const ROOTS3 = (() => {
+  const r = rng(7), segs = [], thorns = [];
+  function grow(p, dir, len, w, depth, t0) {
+    const q = add(p, mul(dir, len));
+    segs.push({ a: p, b: q, w, w2: w * 0.68, t0, d: 0.55 });
+    if (depth >= 4) return;
+    const n = depth < 1 ? 3 : 2;
+    for (let i = 0; i < n; i++) {
+      const nd = norm(add(dir, [(r() - 0.5) * 1.3, -0.25 - r() * 0.3, (r() - 0.5) * 1.3]));
+      grow(q, nd, len * (0.66 + r() * 0.16), w * 0.68, depth + 1, t0 + 0.42);
+    }
   }
-  for (let i = 0; i < 7; i++) grow(230 + i * 57, 400, Math.PI / 2 + (r() - 0.5) * 0.7, 70 + r() * 30, 0, 1, r() * 0.4);
-  for (let i = 0; i < 9; i++) segs.push({ thorn: true, x: 200 + i * 50 + r() * 20, h: 50 + r() * 90, t0: 0.6 + r() * 0.8 });
-  return segs;
+  for (let i = 0; i < 6; i++) {
+    const ang = i / 6 * Math.PI * 2 + r() * 0.5, rad = 0.35 + r() * 0.75;
+    const p = [Math.cos(ang) * rad, -0.12, Math.sin(ang) * rad];
+    grow(p, norm([Math.cos(ang) * 0.3, -1, Math.sin(ang) * 0.3]), 0.62 + r() * 0.2, 0.13, 0, 0.3 + r() * 0.35);
+  }
+  for (let i = 0; i < 11; i++) {
+    const ang = r() * Math.PI * 2, rad = 0.15 + r() * 1.25;
+    thorns.push({ p: [Math.cos(ang) * rad, 0.12, Math.sin(ang) * rad], h: 0.45 + r() * 0.9, lean: [(r() - 0.5) * 0.35, 1, (r() - 0.5) * 0.35], t0: 1 + r() * 1.4 });
+  }
+  return { segs, thorns };
 })();
 function sceneRoots(ctx, t, d) {
-  ctx.fillStyle = C.paper; ctx.fillRect(0, 0, W, H);
-  const g = t / 1.0;
-  for (const s of ROOTS) {
-    if (s.thorn) {
-      const k = out(span(g, s.t0, s.t0 + 1.2));
-      if (!k) continue;
-      ctx.fillStyle = C.orange;
-      ctx.beginPath(); ctx.moveTo(s.x - 9, 400); ctx.lineTo(s.x, 400 - s.h * k); ctx.lineTo(s.x + 9, 400); ctx.fill();
-      continue;
-    }
-    const k = out(span(g, s.t0 + s.depth * 0.32, s.t0 + s.depth * 0.32 + 0.6));
-    if (!k) continue;
-    ctx.strokeStyle = C.ink; ctx.lineWidth = s.w; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(lerp(s.x, s.x2, k), lerp(s.y, s.y2, k)); ctx.stroke();
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, C.paper); g.addColorStop(0.55, C.paper); g.addColorStop(1, '#e6d6b4');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const cam = { yaw: -0.5 + t * 0.32, pitch: -0.32 + Math.sin(t * 0.5) * 0.04, dist: 6.4, f: 700, cx: 400, cy: 440, target: [0, -0.5, 0] };
+  const rise = out(span(t, 0, 0.9));
+  const solids = [];
+  // the ground slab, a disc of soil built from a ring of boxes
+  for (let i = 0; i < 16; i++) {
+    const a0 = i / 16 * Math.PI * 2, a1 = (i + 1) / 16 * Math.PI * 2, R = 1.75 * rise;
+    if (R < 0.01) break;
+    solids.push({ v: [[0, -0.12, 0], [Math.cos(a0) * R, -0.12, Math.sin(a0) * R], [0, 0.12, 0], [Math.cos(a0) * R, 0.12, Math.sin(a0) * R],
+      [0, -0.12, 0], [Math.cos(a1) * R, -0.12, Math.sin(a1) * R], [0, 0.12, 0], [Math.cos(a1) * R, 0.12, Math.sin(a1) * R]], color: i % 2 ? '#c8ad7f' : '#bfa274' });
   }
-  ctx.fillStyle = C.ink; ctx.fillRect(140, 397, 520 * out(span(t, 0, 0.8)), 6);
-  const a = ease(span(t, 1.2, 2)) * (1 - ease(span(t, d - 0.6, d - 0.1)));
-  text(ctx, 'THORNS & ROOTS', 400, 150, font(MONO, 16), C.orange, 'center', a, 6);
-  text(ctx, 'Tüskék és Gyökerek', 400, 225, font(HEAD, 74), C.ink, 'center', a, -1);
-  text(ctx, 'A one-person software workshop.', 400, 690, font(BODY, 25), C.ink, 'center', ease(span(t, 2.4, 3.1)) * (1 - ease(span(t, d - 0.6, d - 0.1))));
-  text(ctx, 'Old roots. New worlds.', 400, 728, font(BODY, 19), C.ink, 'center', 0.6 * ease(span(t, 3, 3.6)) * (1 - ease(span(t, d - 0.6, d - 0.1))));
+  for (const s of ROOTS3.segs) {
+    const k = out(span(t, s.t0, s.t0 + s.d));
+    if (k > 0.02) solids.push(beam(s.a, add(s.a, mul(sub(s.b, s.a), k)), s.w, C.ink, lerp(s.w, s.w2, k)));
+  }
+  for (const th of ROOTS3.thorns) {
+    const k = out(span(t, th.t0, th.t0 + 0.7));
+    if (k > 0.02) solids.push(beam(th.p, add(th.p, mul(norm(th.lean), th.h * k)), 0.16, C.orange, 0.004));
+  }
+  drawSolids(ctx, solids, cam);
+  const a = ease(span(t, 1.1, 1.9)) * (1 - ease(span(t, d - 0.6, d - 0.1)));
+  text(ctx, 'THORNS & ROOTS', 400, 110, font(MONO, 16), C.orange, 'center', a, 6);
+  text(ctx, 'Tüskék és Gyökerek', 400, 185, font(HEAD, 74), C.ink, 'center', a, -1);
+  const b2 = ease(span(t, 2.4, 3.1)) * (1 - ease(span(t, d - 0.6, d - 0.1)));
+  text(ctx, 'A one-person software workshop.', 400, 715, font(BODY, 25), C.ink, 'center', b2);
+  text(ctx, 'Old roots. New worlds.', 400, 752, font(BODY, 19), C.ink, 'center', 0.6 * ease(span(t, 3, 3.6)) * (1 - ease(span(t, d - 0.6, d - 0.1))));
 }
 
 // 2 · HEXAW: readable tokens collapse into real WebAssembly bytes.

@@ -245,3 +245,5 @@ code.inline{font:14px monospace;background:#102e3014;padding:2px 6px;overflow-wr
 .guide-step>div{min-width:0}
 @media(max-width:720px){.spi-section h2,.sec h2{font-size:clamp(44px,13vw,62px);overflow-wrap:anywhere}}
 @media(max-width:720px){.hero h1{font-size:clamp(46px,14.5vw,65px)}.hero>div{min-width:0;max-width:100%}.page-hero h1{font-size:clamp(50px,15vw,78px)}}
+.workshop-terminal{position:relative}
+.terminal-newtab{position:absolute;right:18px;bottom:14px;font:700 12px 'DM Sans',sans-serif;color:#68d6b0;border-bottom:1px solid #68d6b088;z-index:1}
