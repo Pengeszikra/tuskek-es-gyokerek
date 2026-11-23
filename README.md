@@ -4,21 +4,25 @@ English-first, Hungarian-enabled company page for [3Draft](https://github.com/Pe
 
 [Open the site](https://tuskek-gyokerek.petervivo.chatgpt.site/) (currently owner-only).
 
-## ChatGPT spi3der workshop
+## Pages
 
-The main page's **AI at the workbench / Give your agent real tools** section now introduces the ChatGPT-embedded spi3der MCP App. The full bilingual story, architecture, usage instructions, limitations, and roadmap live at [dist/spi3der.html](dist/spi3der.html) and at `/spi3der.html` on the deployed site.
+| page | what it is |
+|---|---|
+| `dist/index.html` | the workshop: story intro, how the pieces fit, 3Draft, HEXAW, Spider Paint (R45 model), MCP, DEV journal, sandbox terminal |
+| `dist/five-percent.html` | the Meta VR Start 2026 entry, with the VR training video at the top, the story, the VR guide, more videos and the DEV write-ups |
+| `dist/spider-paint.html` | the first-person workshop / game builder for the community, building with an AI over MCP, replays, the 2015 roots |
+| `dist/spi3der.html` | the long game: a 3D channel inside AI chats (ChatGPT today, Claude next), with the live native editor demo and the usage guide |
+| `dist/science.html` | science and education: real catalogue data through MCP, the scale from atoms (planned) to the observable universe |
 
-Both pages use the site's EN/HU language switch. Links between the main MCP section and the workshop guide preserve `?lang=en` or `?lang=hu`.
+All pages share `style.css`, `app.js` (EN/HU switch, language-preserving links, progress bar, click-to-play YouTube, copy buttons, DEV feed) and the same header.
 
-The guide distinguishes verified embedded model rendering from the experimental shared-session protocol documented upstream in [spi3der/WORKSHOP.md](https://github.com/Pengeszikra/spi3der/blob/main/WORKSHOP.md).
+## Story intro
+
+`dist/intro.js` is a silent, English-only canvas animation (about 52 seconds, no audio, no narration). About four seconds after the hero comes into view it fades in over the logo, tells the story — Thorns & Roots, HEXAW, 3Draft, Spider Paint, MCP, Five Percent, atoms to galaxies, spi3der — and fades back to the logo. It does not start by itself when the visitor prefers reduced motion or has already seen it in this browser session; a "Watch the story" button replays it. Add `?intro` to the URL to start it right away.
 
 ## Inline spi3der demo
 
-The main page's **AI at the workbench / Give your agent real tools** section embeds the **actual** spi3der editor from `https://spi3der.cloud.run/`, starting with the editable 30-object mechanical spider scene in [dist/assets/spi3der-spider.scene.json](dist/assets/spi3der-spider.scene.json).
-
-[dist/spi3der-demo.js](dist/spi3der-demo.js) fetches that saved 3Draft scene, compresses it with the editor's supported `deflate-raw` format, and sets the native iframe's `#scene=` fragment. Geometry and editing still run in the spi3der browser app; this site does **not** implement a parallel 3D editor or require an MCP connection just to orbit the public demo. If the browser cannot prepare the fragment, the page offers a link to the native app and the scene download. Browsers must support `CompressionStream('deflate-raw')`.
-
-The separate [spi3der guide](dist/spi3der.html) uses [transparent spider artwork](dist/assets/spi3der-spider-transparent.svg), and both pages have a dedicated spi3der navigation entry. The SVG keys dark pixels to transparent while retaining the original embedded spider artwork; it is distinct from the 3D model.
+The spi3der page embeds the **actual** spi3der editor from `https://spi3der.cloud.run/`, starting with the editable mechanical spider scene in [dist/assets/spi3der-spider.scene.json](dist/assets/spi3der-spider.scene.json). [dist/spi3der-demo.js](dist/spi3der-demo.js) compresses the scene with `deflate-raw` and passes it in the iframe's `#scene=` fragment; geometry and editing run in the spi3der app.
 
 ## Run locally
 

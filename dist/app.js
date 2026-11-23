@@ -1,31 +1,60 @@
+// Shared by every page: EN/HU switch, language-preserving links, scroll
+// progress, lazy YouTube players, the DEV journal and the sandbox terminal.
+// Each feature only runs when its markup is on the page.
 const buttons = document.querySelectorAll('[data-lang]');
+const body = document.body;
 let language = new URLSearchParams(location.search).get('lang') === 'hu' ? 'hu' : 'en';
+
 function setLanguage(lang) {
  language = lang;
  document.documentElement.lang = lang;
  document.querySelectorAll('[data-en]').forEach(el => { el.innerHTML = el.dataset[lang]; });
+ document.querySelectorAll('[data-aria-en]').forEach(el => el.setAttribute('aria-label', el.dataset[lang === 'hu' ? 'ariaHu' : 'ariaEn']));
  buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === lang)));
- document.querySelectorAll('[data-lang-link]').forEach(link => { const dest = new URL(link.dataset.langLink, location.href); dest.searchParams.set('lang', lang); link.href = dest.pathname + dest.search + dest.hash; });
+ document.querySelectorAll('[data-lang-link]').forEach(link => {
+  const dest = new URL(link.dataset.langLink, location.href);
+  dest.searchParams.set('lang', lang);
+  link.href = dest.pathname.split('/').pop() + dest.search + dest.hash;
+ });
  const url = new URL(location.href);
  url.searchParams.set('lang', lang);
  history.replaceState(null, '', url);
- document.title = lang === 'hu' ? 'Tüskék és Gyökerek — A gyökerektől az univerzumig' : 'Tüskék és Gyökerek — From roots to the universe';
- document.getElementById('copied').textContent = '';
+ if (body.dataset.titleEn) document.title = lang === 'hu' ? body.dataset.titleHu : body.dataset.titleEn;
 }
 buttons.forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
 setLanguage(language);
-document.getElementById('copy').addEventListener('click', async () => {
- const status = document.getElementById('copied');
- try { await navigator.clipboard.writeText(document.querySelector('.connect code').textContent); status.textContent = language === 'hu' ? 'Kimásolva.' : 'Copied.'; }
- catch { status.textContent = language === 'hu' ? 'Jelöld ki és másold a fenti parancsot.' : 'Select and copy the command above.'; }
-});
+
 function updateProgress() {
+ const bar = document.getElementById('progress');
+ if (!bar) return;
  const total = document.documentElement.scrollHeight - innerHeight;
- document.getElementById('progress').style.width = `${total > 0 ? scrollY / total * 100 : 0}%`;
+ bar.style.width = `${total > 0 ? scrollY / total * 100 : 0}%`;
 }
 addEventListener('scroll', updateProgress, {passive:true});
 addEventListener('resize', updateProgress);
 updateProgress();
+
+// Click-to-play YouTube: a thumbnail first, the player only after a click.
+document.querySelectorAll('.yt[data-id]').forEach(el => {
+ const id = el.dataset.id;
+ if (!el.querySelector('img')) {
+  const img = document.createElement('img');
+  img.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+  img.alt = '';
+  img.loading = 'lazy';
+  el.prepend(img);
+ }
+ el.addEventListener('click', () => {
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+  iframe.title = el.getAttribute('aria-label') || 'YouTube video';
+  iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+  iframe.allowFullscreen = true;
+  el.replaceChildren(iframe);
+  el.classList.add('playing');
+ }, {once:true});
+});
+
 // Latest public posts from the same DEV account as the RSS feed.
 const feedList = document.getElementById('feed-list');
 if (feedList) {
@@ -52,6 +81,15 @@ if (feedList) {
    feedList.textContent = language === 'hu' ? 'A cikkek most nem tölthetők be. Nyisd meg az RSS feedet alább.' : 'Posts are unavailable right now. Open the RSS feed below.';
   });
 }
+
+// Copy buttons: <button data-copy="#selector">
+document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
+ const source = document.querySelector(button.dataset.copy);
+ const label = button.textContent;
+ try { await navigator.clipboard.writeText(source.textContent.trim()); button.textContent = language === 'hu' ? 'Kimásolva ✓' : 'Copied ✓'; }
+ catch { button.textContent = language === 'hu' ? 'Jelöld ki és másold' : 'Select and copy'; }
+ setTimeout(() => { button.textContent = label; }, 1800);
+}));
 
 const terminalLaunch = document.getElementById('terminal-launch');
 terminalLaunch?.addEventListener('click', () => {
