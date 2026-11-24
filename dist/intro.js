@@ -170,9 +170,11 @@ function sceneRoots(ctx, t, d) {
   text(ctx, 'Old roots. New worlds.', 400, 752, font(BODY, 19), C.ink, 'center', 0.6 * ease(span(t, 3, 3.6)) * (1 - ease(span(t, d - 0.6, d - 0.1))));
 }
 
-// 2 · HEXAW: readable tokens collapse into real WebAssembly bytes.
-const TOK = ['(module', '  (func $add', '    (param i32 i32)', '    (result i32)', '    local.get 0', '    local.get 1', '    i32.add)', '  (export "add"))'];
-const BYTES = ['00 61 73 6D', '01 00 00 00', '01 07 01 60', '02 7F 7F 01', '7F 03 02 01', '00 07 07 01', '03 61 64 64', '00 00 0A 09'];
+// 2 · HEXAW: flat, bracket-free tokens collapse into real WebAssembly bytes.
+// The lines are the triangle loop of 3Draft's kernel/pick.hexaw; the bytes are what the
+// HEXAW compiler emits for exactly these lines (offset 85 of the compiled module).
+const TOK = ['  BLOCK', '    LOOP', '      GET 10', '      GET 8', '      GES', '      BRIF 1  ; done', '      GET 7', '      GET 10'];
+const BYTES = ['02 40', '03 40', '20 0A', '20 08', '4E', '0D 01', '20 07', '20 0A'];
 function sceneHexaw(ctx, t, d) {
   ctx.fillStyle = C.night; ctx.fillRect(0, 0, W, H);
   const m = ease(span(t, 2.4, 3.6));
@@ -186,7 +188,7 @@ function sceneHexaw(ctx, t, d) {
       ctx.beginPath(); ctx.moveTo(70 + 300 * m, y - 9); ctx.lineTo(470, y - 9); ctx.stroke();
     }
   });
-  text(ctx, 'readable', 70, 82, font(MONO, 13), C.gold, 'left', 0.7 * (1 - m), 3);
+  text(ctx, 'readable · 3draft/kernel/pick.hexaw', 70, 82, font(MONO, 13), C.gold, 'left', 0.7 * (1 - m), 3);
   text(ctx, 'executable', 470, 82, font(MONO, 13), C.mint, 'left', 0.7 * m, 3);
   caption(ctx, t, d, 'THE FOUNDATION', 'HEXAW', 'WebAssembly, made readable.', C.paper, C.mint, 620);
 }
